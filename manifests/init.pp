@@ -5,6 +5,7 @@ class dhcp (
   $dhcp_conf_header    = 'INTERNAL_TEMPLATE',
   $dhcp_conf_ddns      = 'INTERNAL_TEMPLATE',
   $dhcp_conf_pxe       = 'INTERNAL_TEMPLATE',
+  $dhcp_conf_nfs       = 'INTERNAL_TEMPLATE',
   $dhcp_conf_extra     = 'INTERNAL_TEMPLATE',
   $dhcp_conf_fragments = {},
   $interfaces          = undef,
@@ -12,6 +13,7 @@ class dhcp (
   $dnsupdatekey        = undef,
   $pxeserver           = undef,
   $pxefilename         = undef,
+  $rootpath			   = undef,
   $logfacility         = 'daemon',
   $default_lease_time  = 3600,
   $max_lease_time      = 86400
@@ -51,6 +53,10 @@ class dhcp (
   $dhcp_conf_pxe_real = $dhcp_conf_pxe ? {
     INTERNAL_TEMPLATE => template('dhcp/dhcpd.conf.pxe.erb'),
     default           => $dhcp_conf_pxe,
+  }
+  $dhcp_conf_nfs_real = $dhcp_conf_nfs ? {
+    INTERNAL_TEMPLATE => template('dhcp/dhcpd.conf.nfs.erb'),
+    default           => $dhcp_conf_nfs,
   }
   $dhcp_conf_extra_real = $dhcp_conf_extra ? {
     INTERNAL_TEMPLATE => template('dhcp/dhcpd.conf-extra.erb'),
@@ -98,6 +104,11 @@ class dhcp (
   concat::fragment { 'dhcp-conf-pxe':
     target  => "${dhcp_dir}/dhcpd.conf",
     content => $dhcp_conf_pxe_real,
+    order   => 20,
+  }
+  concat::fragment { 'dhcp-conf-nfs':
+    target  => "${dhcp_dir}/dhcpd.conf",
+    content => $dhcp_conf_nfs_real,
     order   => 20,
   }
   concat::fragment { 'dhcp-conf-extra':
